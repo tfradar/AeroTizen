@@ -32,6 +32,8 @@ export const createSettingsActions = (
     setCardSize: cardSize => commit({ cardSize }, services.applyCardSize),
     setHomeCardMode: homeCardMode => commit({ homeCardMode }, services.applyCardSize),
     setHomeCardColumns: homeCardColumns => commit({ homeCardColumns }, services.applyCardSize),
+    // Console paints its own backdrop, so the background layer is re-evaluated too.
+    setHomeLayout: homeLayout => commit({ homeLayout }, () => { services.applyBackground(); services.applyCardSize(); }),
     setHdmiVisibility: hideDisconnectedHdmi => commit({ hideDisconnectedHdmi }, services.applyInputs),
     setHdmiKeepVisible: (port, keep) => commit({ hdmiKeepVisible: { ...settings.getSnapshot().hdmiKeepVisible, [port]: keep } }, services.applyInputs),
     setTimeFormat: format => commit(format === 'none' ? { showTime: false } : { showTime: true, timeFormat: format }, services.applyClock),

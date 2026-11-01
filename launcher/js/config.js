@@ -37,6 +37,7 @@ AeroTizen.config = {
     cardSize: 'big',
     homeCardMode: 'square',   // Square Samsung artwork remains the default.
     homeCardColumns: null,    // null preserves the existing Big/Small column count.
+    homeLayout: 'grid',       // 'console' shows one app row with a focused hero.
     background: 'aurora',
     weatherPhoto: false,  // Opt-in AI-generated scenes using the existing forecast.
     speed: 1,

@@ -10,7 +10,7 @@ export interface WeatherLocation {
   name: string; label?: string; latitude: number; longitude: number; country_code?: string;
 }
 export interface SettingsValues {
-  home: string[]; homeCardMode: 'square' | 'rectangle'; homeCardColumns: number | null; clockLayout: 'classic' | 'custom'; aeroClockStyle: 'vertical' | 'horizontal' | 'minimal' | 'bold'; cardSize: CardSize; background: string; speed: number;
+  home: string[]; homeCardMode: 'square' | 'rectangle'; homeCardColumns: number | null; homeLayout: 'grid' | 'console'; clockLayout: 'classic' | 'custom'; aeroClockStyle: 'vertical' | 'horizontal' | 'minimal' | 'bold'; cardSize: CardSize; background: string; speed: number;
   weatherPhoto: boolean; showWeather: boolean; showTime: boolean; showNetwork: boolean; tempUnit: TemperatureUnit;
   weatherLocation: WeatherLocation | null; weatherShowLocation: boolean;
   dateFormat: DateFormat | 'auto' | 'weekday' | 'dmy' | 'mdy'; timeFormat: TimeFormat;
@@ -86,7 +86,7 @@ export interface SettingsActions {
   setLocationVisible(visible: boolean): void; setTempUnit(unit: TemperatureUnit): void;
   setClockLayout(layout: SettingsValues['clockLayout']): void; setClockStyle(style: SettingsValues['aeroClockStyle']): void;
   setDateFormat(format: DateFormat): void; setNetworkVisible(visible: boolean): void;
-  setLiveTvVisible(visible: boolean): void; setCardSize(size: CardSize): void; setHomeCardMode(mode: SettingsValues['homeCardMode']): void; setHomeCardColumns(columns: number | null): void;
+  setLiveTvVisible(visible: boolean): void; setCardSize(size: CardSize): void; setHomeCardMode(mode: SettingsValues['homeCardMode']): void; setHomeCardColumns(columns: number | null): void; setHomeLayout(layout: SettingsValues['homeLayout']): void;
   setHdmiVisibility(hide: boolean): void; setHdmiKeepVisible(port: string, keep: boolean): void; setTimeFormat(format: TimeFormat | 'none'): void;
   setLocation(location: WeatherLocation | null): void; setSpeed(direction: number): void;
   saveInputName(port: string, value: string): void; toggleApp(id: string): void;

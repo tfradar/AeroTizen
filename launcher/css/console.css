@@ -1,0 +1,84 @@
+/* Console Home layout: one row of apps, the focused app grows and names itself
+   in a hero below, over a backdrop tinted by its brand colour.
+   Motion is transform/opacity only and the content masks are dropped,
+   so older TV GPUs composite it without repainting. */
+
+body.layout-console #home-root { position: relative; }
+body.layout-console #home-root > .topbar,
+body.layout-console #home-root > .content-viewport { position: relative; z-index: 1; }
+body.layout-console #home-root > .topbar { z-index: 4; }
+body.layout-console #home-root > .content-viewport,
+body.layout-console #home-root .content-mask { -webkit-mask-image: none; mask-image: none; }
+
+/* ---- backdrop ---- */
+.console-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: #000; z-index: 0; }
+.console-wash { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .45s ease-out; }
+/* Kept low so white brands (YouTube) don't light up an OLED at night. */
+.console-wash.is-front { opacity: .42; }
+.console-shade {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.25) 100%),
+              linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,.7) 100%);
+}
+
+/* ---- hero ---- */
+.console-hero { position: absolute; left: 0; top: 0; width: 100%; height: 100%; animation: console-hero-in .26s ease-out both; }
+@keyframes console-hero-in { from { opacity: 0; transform: translate3d(-16px,0,0); } to { opacity: 1; transform: none; } }
+.console-title {
+  position: absolute; left: 96px; top: 500px; max-width: 980px;
+  font-size: 76px; font-weight: 600; line-height: 1.05; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.console-detail { position: absolute; left: 98px; top: 600px; font-size: 30px; color: rgba(255,255,255,.7); }
+.console-open {
+  position: absolute; left: 96px; top: 660px; padding: 14px 52px;
+  border-radius: 40px; background: #fff; color: #0b0b0b; font-size: 30px; font-weight: 600;
+}
+.console-art {
+  position: absolute; right: 120px; top: 440px; width: 380px; height: 380px;
+  border-radius: 40px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55);
+}
+
+/* ---- app row ---- */
+body.layout-console #home-root main { padding-left: 96px; padding-right: 96px; }
+body.layout-console #home-root .app-grid.console-row {
+  position: relative; display: flex; flex-wrap: nowrap; justify-content: flex-start;
+  gap: 28px; margin: 92px 0 40px; transition: transform .26s cubic-bezier(.2,.72,.25,1); will-change: transform;
+}
+body.layout-console #home-root .app-grid.console-row .tile {
+  flex: 0 0 auto; width: 176px; height: 176px; min-width: 0; border-radius: 30px;
+  transform: translateZ(0); transform-origin: 0 100%; box-shadow: none;
+  transition: transform .2s cubic-bezier(.2,.72,.25,1);
+}
+/* Scale 1.5 adds 88px, matching CONSOLE_GROWTH in Home.tsx; later tiles shift right. */
+body.layout-console #home-root .app-grid.console-row .tile.focused {
+  transform: translateZ(0) scale(1.5); box-shadow: 0 0 0 3px rgba(255,255,255,.92), 0 20px 40px rgba(0,0,0,.5);
+}
+body.layout-console #home-root .app-grid.console-row .tile.focused ~ .tile { transform: translate3d(88px,0,0); }
+body.layout-console #home-root .app-grid.console-row .tile.moving { transform: translateZ(0) scale(1.5) translate3d(0,-10px,0); }
+body.layout-console #home-root .app-grid.console-row .app-fallback { padding: 14px; gap: 8px; }
+body.layout-console #home-root .app-grid.console-row .app-fallback .logo { width: 84px; height: 84px; }
+body.layout-console #home-root .app-grid.console-row .app-fallback.logo-only .logo,
+body.layout-console #home-root .app-grid.console-row .app-fallback.logo-big .logo { width: 128px; height: 96px; }
+body.layout-console #home-root .app-grid.console-row .app-fallback .name { font-size: 22px; }
+body.layout-console #home-root .app-grid.console-row .tile.fire svg.flame { width: 80px; height: 80px; }
+
+/* ---- inputs, a quiet row at the bottom (kept above the 1000px scroll line) ---- */
+body.layout-console #home-root #inputs-section { margin-top: 420px; }
+body.layout-console #home-root #inputs-section h2 { display: none; }
+body.layout-console #home-root #inputs { gap: 20px; }
+body.layout-console #home-root #inputs .tile {
+  flex: 0 0 auto; height: 88px; max-width: 380px; padding: 0 26px; gap: 16px;
+  border-radius: 44px; background: rgba(255,255,255,.08); box-shadow: none;
+}
+body.layout-console #home-root #inputs .tile.focused { background: rgba(255,255,255,.22); box-shadow: 0 0 0 3px rgba(255,255,255,.9); transform: translateZ(0); }
+body.layout-console #home-root #inputs .tile svg { width: 44px; height: 44px; }
+body.layout-console #home-root #inputs .tile .name { font-size: 26px; }
+body.layout-console #home-root #inputs .tile .name .sub { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .console-wash, .console-hero,
+  body.layout-console #home-root .app-grid.console-row,
+  body.layout-console #home-root .app-grid.console-row .tile { transition: none; animation: none; }
+}

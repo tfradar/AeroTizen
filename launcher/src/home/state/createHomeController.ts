@@ -28,7 +28,7 @@ export const createHomeController = (env: Omit<HomeEnvironment, 'bridge' | 'stat
     const columns = env.columns(settings.getSnapshot()), all = ids(), result = [['gear', 'samsung-home-shortcut', 'home-tab', 'apps-tab']];
     for (let i = 0; i < all.length; i += columns) {result.push(all.slice(i, i + columns).map(id => 'app:' + id));}
     if (state.getSnapshot().page === 'home') {
-      if (settings.getSnapshot().continueWatching && inventory.getSnapshot().items.length) {result.push(inventory.getSnapshot().items.map(item => 'continue:' + item.key));}
+      if (settings.getSnapshot().continueWatching && settings.getSnapshot().homeLayout !== 'console' && inventory.getSnapshot().items.length) {result.push(inventory.getSnapshot().items.map(item => 'continue:' + item.key));}
       const sources = inventory.getSnapshot().inputs;
       if (sources.length) {result.push(sources.map(sourceKey));}
     }

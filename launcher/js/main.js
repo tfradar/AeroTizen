@@ -6,6 +6,12 @@
   var KEY = A.config.KEY;
 
   A.applyBackground = function () {
+    // Console draws its own backdrop; keep animated canvases stopped behind it.
+    if (A.settings.homeLayout === 'console') {
+      window.Backgrounds.suspend();
+      document.documentElement.style.background = '#000';
+      return;
+    }
     if (A.photoWeather && A.photoWeather.update()) { return; }
     window.Backgrounds.setSpeed(A.settings.speed);
     window.Backgrounds.apply(A.settings.background);

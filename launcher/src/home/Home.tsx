@@ -8,12 +8,28 @@ import { AppCard } from './components/AppCard';
 import { ContinueCard } from './components/ContinueCard';
 import { MoveArrows } from './components/MoveArrows';
 import { TileMenu } from './components/TileMenu';
+import { ConsoleStage } from './components/ConsoleStage';
+const CONSOLE_GROWTH = 90;
 export const Home = ({ env }: { env: HomeEnvironment }) => {
-  const settings = useStore(env.settings), { page, active, draft, moving } = useStore(env.state);
+  const settings = useStore(env.settings), { page, active, draft, moving, selected } = useStore(env.state);
   const { apps, inputs, items, ready } = useStore(env.inventory);
   const home = draft || (settings.home.length || env.runtime.settings.home !== null ? settings.home : [env.runtime.config.FIREPLACE_ID]);
   const visibleHome = home.filter(id => id === env.runtime.config.FIREPLACE_ID || !ready || apps.some(app => app.id === id));
   const size = settings.cardSize === 'small' ? 'small' : 'big';
+  const consoleLayout = settings.homeLayout === 'console';
+  useLayoutEffect(() => { document.body.classList.toggle('layout-console', consoleLayout); }, [consoleLayout]);
+  // Console scrolls the single app row sideways; the focused tile grows by CONSOLE_GROWTH.
+  useLayoutEffect(() => {
+    const grid = document.getElementById('grid');
+    if (!grid) {return;}
+    if (!consoleLayout) { grid.style.transform = ''; delete grid.dataset.offset; return; }
+    const node = selected.startsWith('app:') ? env.nodes.get(selected) : null;
+    if (!node) {return;}
+    const previous = Number(grid.dataset.offset || 0), visible = grid.parentElement?.clientWidth || 1792;
+    const offset = Math.max(0, Math.min(Math.max(previous, node.offsetLeft + node.offsetWidth + CONSOLE_GROWTH - visible), node.offsetLeft));
+    grid.dataset.offset = String(offset);
+    grid.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
+  }, [env, consoleLayout, selected, page, apps, settings.home, draft]);
   useLayoutEffect(() => { env.bridge.focus(); }, [env, page, apps, inputs, items, settings.home, draft, size]);
   useLayoutEffect(() => {
     const list = document.getElementById('continue-items');
@@ -40,11 +56,12 @@ export const Home = ({ env }: { env: HomeEnvironment }) => {
       <HomeControl env={env} id="home-tab" controlKey="home-tab" className={'view-tab' + (page === 'home' ? ' active' : '')} title={env.translate('Home')} pressed={page === 'home'}>{env.translate('Home')}</HomeControl>
       <HomeControl env={env} id="apps-tab" controlKey="apps-tab" className={'view-tab' + (page === 'apps' ? ' active' : '')} title={env.translate('All apps')} pressed={page === 'apps'}>{env.translate('All apps')}</HomeControl>
     </nav><div class="topbar-right"><div id="custom-clock-root" /><span id="weather" class="weather" hidden /><span id="date" class="date" /><span id="time" class="time" /></div></header>
+    {consoleLayout ? <ConsoleStage env={env} /> : null}
     <div class="content-viewport" aria-hidden={!active}><div class="content-mask"><main id="rows" ref={env.rows}><div class="home-page-surface" data-page={page}>
-      <div style={{ display: page === 'home' ? undefined : 'none' }} hidden={page !== 'home'} id={page === 'home' ? 'grid' : 'home-grid-parked'} class={'app-grid cards-' + size + ' cards-' + settings.homeCardMode + ' cols-' + env.columns(settings)} aria-label="Home apps">{cards(visibleHome, page === 'home')}</div>
-      <div style={{ display: page === 'apps' ? undefined : 'none' }} hidden={page !== 'apps'} id={page === 'apps' ? 'grid' : 'apps-grid-parked'} class={'app-grid cards-' + size + ' cards-' + settings.homeCardMode + ' cols-' + env.columns(settings)} aria-label="All apps">{cards(apps.map(app => app.id), page === 'apps')}</div>
+      <div style={{ display: page === 'home' ? undefined : 'none' }} hidden={page !== 'home'} id={page === 'home' ? 'grid' : 'home-grid-parked'} class={'app-grid cards-' + size + ' cards-' + settings.homeCardMode + ' cols-' + env.columns(settings) + (consoleLayout ? ' console-row' : '')} aria-label="Home apps">{cards(visibleHome, page === 'home')}</div>
+      <div style={{ display: page === 'apps' ? undefined : 'none' }} hidden={page !== 'apps'} id={page === 'apps' ? 'grid' : 'apps-grid-parked'} class={'app-grid cards-' + size + ' cards-' + settings.homeCardMode + ' cols-' + env.columns(settings) + (consoleLayout ? ' console-row' : '')} aria-label="All apps">{cards(apps.map(app => app.id), page === 'apps')}</div>
       <p id="apps-empty" class="apps-empty" hidden={page === 'home' || apps.length > 0}>{env.translate('No apps found.')}</p>
-      <section id="continue-section" class="row-wrap" hidden={page !== 'home' || !settings.continueWatching || !items.length}><h2>{env.translate('Continue Watching')}</h2>
+      <section id="continue-section" class="row-wrap" hidden={page !== 'home' || consoleLayout || !settings.continueWatching || !items.length}><h2>{env.translate('Continue Watching')}</h2>
         <div class="continue-viewport"><div id="continue-items" class="row" aria-label="Continue Watching">{items.map(item => <ContinueCard key={item.key} env={env} item={item} />)}</div></div></section>
       <section id="inputs-section" class="row-wrap inputs-wrap" hidden={page !== 'home' || !inputs.length}><h2>{env.translate('Inputs')}</h2><div id="inputs" class="row small">
         {inputs.map(source => {

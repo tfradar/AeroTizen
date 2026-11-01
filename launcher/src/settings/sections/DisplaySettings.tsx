@@ -40,6 +40,9 @@ export const DisplaySettings = ({ settings, actions, clock, openedAt }: Props) =
       <p class="hint">Show the Live TV tile in Inputs.</p>
       <Choice id="live-tv-visibility" label="Live TV visibility" value={settings.showLiveTv}
         options={[[true, 'Show'], [false, 'Hide']]} onSelect={actions.setLiveTvVisible} />
+      <h3>Home layout</h3>
+      <Choice id="home-layout" label="Home layout" value={settings.homeLayout}
+        options={[['grid', 'Grid'], ['console', 'Console']]} onSelect={actions.setHomeLayout} />
       <h3>App cards</h3>
       <Choice id="home-card-mode" label="Home tile layout" value={settings.homeCardMode}
         options={[['square', 'Square'], ['rectangle', 'Rectangle']]} onSelect={actions.setHomeCardMode} />
